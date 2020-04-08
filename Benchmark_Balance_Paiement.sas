@@ -16,6 +16,19 @@ proc cas;
 			datafile=row.Name;
 			tablename=scan(row.Name,1);
 			table.droptable / caslib="public" name=tablename quiet=true;
+			
+if (upcase(tablename) in {'CREDITCARD'}) then do ;
+
+ 
+		table.loadTable / 
+				casout={caslib="public" name=tablename promote=true} 
+				caslib="myCaslib" 
+				path=datafile 
+				importoptions={delimiter="," filetype="csv" guessRows=10000 getnames=true varchars=true stripblanks=true};
+
+end ;
+
+else ;
 			table.loadTable / 
 				casout={caslib="public" name=tablename promote=true} 
 				caslib="myCaslib" 
@@ -39,12 +52,12 @@ proc cas;
 		dataStep.runCode / code=codeds;
 	end;
 
-	/* Liste toutes les tables d'agregat et les concatene toutes en une seule en mémoire */
+	/* Liste toutes les tables d'agregat et les concatene toutes en une seule en mÃ©moire */
 
 	table.tableinfo result=listtables / caslib="public";
 	table.droptable / caslib="casuser" name="global_agg" quiet=true;
 	do row over listtables.tableinfo[1:listtables.tableinfo.nrows];
-		if !(upcase(row.Name) in {'PLANAGREGATION','TABLEPAYSZONE'}) then do;
+		if !(upcase(row.Name) in {'PLANAGREGATION','TABLEPAYSZONE','CREDITCARD'}) then do;
 			appendTable("public",row.name,"casuser","global_agg");
 		end; 
 	end;
